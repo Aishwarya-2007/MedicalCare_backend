@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   signupUser,
   loginUser,
+  changePassword,
 } = require("../Controllers/AuthController");
 
 const verifyToken = require("../Middleware/AuthMiddleware");
@@ -12,7 +13,13 @@ const authorizeRoles = require("../Middleware/RoleMiddleware");
 
 // Public Routes
 router.post("/signup", signupUser);
+
 router.post("/login", loginUser);
+
+router.put(
+  "/change-password",
+  changePassword
+);
 
 // Protected Route
 router.get(

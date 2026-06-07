@@ -2,6 +2,7 @@ const User = require("../Models/UserModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+// SIGNUP
 const signupUser = async (req, res) => {
   try {
     const {
@@ -43,6 +44,7 @@ const signupUser = async (req, res) => {
       message: "User Registered Successfully",
       user: newUser,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -51,13 +53,19 @@ const signupUser = async (req, res) => {
   }
 };
 
+// LOGIN
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("=================================");
+    console.log("Email Received:", email);
+
     const user = await User.findOne({
       email,
     });
+
+    console.log("User Found:", user);
 
     if (!user) {
       return res.status(404).json({
@@ -70,6 +78,8 @@ const loginUser = async (req, res) => {
       password,
       user.password
     );
+
+    console.log("Password Match:", isMatch);
 
     if (!isMatch) {
       return res.status(401).json({
@@ -89,12 +99,78 @@ const loginUser = async (req, res) => {
       }
     );
 
+    const userData = {
+  _id: user._id,
+  firstname: user.firstname,
+  lastname: user.lastname,
+  email: user.email,
+  phone: user.phone,
+  role: user.role,
+};
+
+res.status(200).json({
+  success: true,
+  message: "Login Successful",
+  token,
+  user: userData,
+});
+
+  } catch (error) {
+    console.log("Login Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// CHANGE PASSWORD
+const changePassword = async (req, res) => {
+  try {
+    const {
+      email,
+      currentPassword,
+      newPassword,
+    } = req.body;
+
+    const user = await User.findOne({
+      email,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User Not Found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Current Password Incorrect",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      10
+    );
+
+    user.password = hashedPassword;
+
+    await user.save();
+
     res.status(200).json({
       success: true,
-      message: "Login Successful",
-      token,
-      user,
+      message: "Password Changed Successfully",
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -106,4 +182,5 @@ const loginUser = async (req, res) => {
 module.exports = {
   signupUser,
   loginUser,
+  changePassword,
 };

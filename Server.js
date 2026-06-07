@@ -37,6 +37,28 @@ app.use(
   appointmentRoutes
 );
 
+const dashboardRoutes =
+  require("./Routes/DashboardRoute");
+
+app.use(
+  "/api/dashboard",
+  dashboardRoutes
+); 
+
+const serviceRoutes = 
+require("./routes/serviceRoutes");
+
+app.use(
+  "/api/services", serviceRoutes);
+
+const reportRoutes =
+require("./Routes/ReportRoute");
+
+app.use(
+  "/api/reports",
+  reportRoutes
+);
+
 mongoose
   .connect(process.env.MONGODB_URL)
   .then(() => {
