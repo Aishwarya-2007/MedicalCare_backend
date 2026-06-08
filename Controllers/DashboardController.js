@@ -13,11 +13,16 @@ const getDashboardStats = async (req, res) => {
     const totalAppointments =
       await Appointment.countDocuments();
 
+    const recentAppointments = await Appointment.find()
+      .sort({ createdAt: -1 })
+      .limit(5);
+
     res.status(200).json({
       success: true,
       totalDoctors,
       totalPatients,
       totalAppointments,
+      recentAppointments,
     });
   } catch (error) {
     res.status(500).json({

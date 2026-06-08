@@ -8,73 +8,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const authRoutes =
-  require("./Routes/AuthRoute");
+// ROUTES
+const authRoutes = require("./Routes/AuthRoute");
+const doctorRoutes = require("./Routes/DoctorRoute");
+const patientRoutes = require("./Routes/PatientRoute");
+const appointmentRoutes = require("./Routes/AppointmentRoute");
+const serviceRoutes = require("./Routes/serviceRoutes");
+const dashboardRoutes = require("./Routes/DashboardRoute");
 
 app.use("/api/auth", authRoutes);
+app.use("/api/doctors", doctorRoutes);
+app.use("/api/patients", patientRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
-const patientRoutes =
-require("./Routes/PatientRoute");
+// DB CONNECT
+mongoose.connect(process.env.MONGODB_URL)
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch(err => console.log(err));
 
-app.use(
-  "/api/patients",
-  patientRoutes
-);
-
-const doctorRoutes =
-require("./Routes/DoctorRoute");
-
-app.use(
-  "/api/doctors",
-  doctorRoutes
-);
-
-const appointmentRoutes =
-require("./Routes/AppointmentRoute");
-
-app.use(
-  "/api/appointments",
-  appointmentRoutes
-);
-
-const dashboardRoutes =
-  require("./Routes/DashboardRoute");
-
-app.use(
-  "/api/dashboard",
-  dashboardRoutes
-); 
-
-const serviceRoutes = 
-require("./routes/serviceRoutes");
-
-app.use(
-  "/api/services", serviceRoutes);
-
-const reportRoutes =
-require("./Routes/ReportRoute");
-
-app.use(
-  "/api/reports",
-  reportRoutes
-);
-
-mongoose
-  .connect(process.env.MONGODB_URL)
-  .then(() => {
-    console.log(
-      "MongoDB Connected Successfully"
-    );
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-
-const PORT =
-  process.env.PORT || 5000;
+// SERVER START
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(
-    `Server running on port ${PORT}`
-  );
+  console.log(`Server running on port ${PORT}`);
 });

@@ -2,21 +2,14 @@ const User = require("../Models/UserModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+// ======================
 // SIGNUP
+// ======================
 const signupUser = async (req, res) => {
   try {
-    const {
-      firstname,
-      lastname,
-      email,
-      phone,
-      password,
-      role,
-    } = req.body;
+    const { firstname, lastname, email, phone, password, role } = req.body;
 
-    const existingUser = await User.findOne({
-      email,
-    });
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       return res.status(400).json({
@@ -25,10 +18,7 @@ const signupUser = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
       firstname,
@@ -53,19 +43,14 @@ const signupUser = async (req, res) => {
   }
 };
 
+// ======================
 // LOGIN
+// ======================
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.log("=================================");
-    console.log("Email Received:", email);
-
-    const user = await User.findOne({
-      email,
-    });
-
-    console.log("User Found:", user);
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
@@ -74,12 +59,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
-
-    console.log("Password Match:", isMatch);
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({
@@ -89,35 +69,19 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role,
-      },
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
+      { expiresIn: "1d" }
     );
 
-    const userData = {
-  _id: user._id,
-  firstname: user.firstname,
-  lastname: user.lastname,
-  email: user.email,
-  phone: user.phone,
-  role: user.role,
-};
-
-res.status(200).json({
-  success: true,
-  message: "Login Successful",
-  token,
-  user: userData,
-});
+    res.status(200).json({
+      success: true,
+      message: "Login Successful",
+      token,
+      user,
+    });
 
   } catch (error) {
-    console.log("Login Error:", error);
-
     res.status(500).json({
       success: false,
       message: error.message,
@@ -125,18 +89,14 @@ res.status(200).json({
   }
 };
 
+// ======================
 // CHANGE PASSWORD
+// ======================
 const changePassword = async (req, res) => {
   try {
-    const {
-      email,
-      currentPassword,
-      newPassword,
-    } = req.body;
+    const { email, currentPassword, newPassword } = req.body;
 
-    const user = await User.findOne({
-      email,
-    });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
@@ -145,10 +105,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(
-      currentPassword,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -157,13 +114,9 @@ const changePassword = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     user.password = hashedPassword;
-
     await user.save();
 
     res.status(200).json({
@@ -179,6 +132,9 @@ const changePassword = async (req, res) => {
   }
 };
 
+// ======================
+// FIXED EXPORT (IMPORTANT)
+// ======================
 module.exports = {
   signupUser,
   loginUser,
